@@ -1,0 +1,12 @@
+     
+listen wikimedia 0.0.0.0:80
+mode http
+balance roundrobin
+option httpclose
+option forwardfor
+stats enable
+cookie SERVERNAME insert indirect nocache
+  {% for proxy in host_details %}
+ server {{ proxy.server_name }} {{ proxy.node_ip }}:80 cookie {{ proxy.server_name }} check
+  {% endfor %}
+  

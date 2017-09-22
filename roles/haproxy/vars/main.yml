@@ -1,0 +1,4 @@
+---
+host_details:
+ - {node_ip: "{{ groups['kwnode'][0] }}", server_name: "Server01"}
+ - {node_ip: "{{ groups['kwnode'][1] }}", server_name: "Server02"}

@@ -1,0 +1,47 @@
+---
+
+- name: Ensure MySQL packages are installed.
+  yum: pkg={{ item }}
+  with_items: 
+  - mariadb
+  - mariadb-server
+  - mariadb-libs
+  - MySQL-python
+  - perl-DBD-MySQL
+  become: true
+
+- name: Enable MySQL Service and Restart 
+  systemd: name=mariadb daemon_reload=yes state=restarted enabled=yes
+  become: true
+
+- name: Change root user password on first run
+  mysql_user: login_user=root
+              login_password="{{ mysql_root }}"
+              check_implicit_admin=yes
+              name=root
+              password={{ mysql_root }}
+              priv=*.*:ALL,GRANT
+              host={{ item }}
+  with_items:
+    - "{{ ansible_nodename }}"
+    - 127.0.0.1
+    - ::1
+    - localhost
+
+- name: Remove MySQL test DB
+  action: mysql_db login_user=root login_password="{{ mysql_root }}" db=test state=absent
+
+
+- name: Create database for wikimedia
+  action: mysql_db db={{wm_db}}  login_user=root  login_password="{{ mysql_root }}" state=present
+
+- name: Create Mysql user for wikimedia
+  mysql_user: user={{ wm_user }} password={{ wm_pass }} host={{ item }} login_user=root  login_password="{{ mysql_root }}" state=present  priv="{{wm_db}}.*:ALL" append_privs=yes
+  with_items:
+    - "{{ groups['kwnode'][0] }}"
+    - "{{ groups['kwnode'][1] }}"
+
+
+#- name: 
+#- name: Enable firewall for MySQL 
+#  firewalld: port=3306  permanent=true  state=enabled

@@ -1,0 +1,33 @@
+---
+- name: Ensure PHP and Apache packages are installed.
+  yum: pkg=http://dl.iuscommunity.org/pub/ius/stable/CentOS/7/x86_64/ius-release-1.0-14.ius.centos7.noarch.rpm state=present
+- yum: pkg={{ item }} update_cache=yes state=latest
+  with_items:
+  - httpd 
+  - php70u
+  - php70u-mysqlnd
+  - php70u-gd
+  - php70u-xml
+  - php70u-mbstring
+  - php70u-json
+  become: true
+
+- name: Download mediawiki and install
+  get_url: url=http://releases.wikimedia.org/mediawiki/1.29/mediawiki-1.29.1.tar.gz   dest=/tmp/
+  
+- unarchive: src=/tmp/mediawiki-1.29.1.tar.gz dest=/var/www/html/ remote_src=yes mode=755 owner=apache group=apache
+  become: true
+
+- file: src=/var/www/html/mediawiki-1.29.1 dest=/var/www/html/mediawiki  state=link
+  become: true
+
+#- template: src=LocalSettings.j2 dest=/var/www/html/mediawiki/LocalSettings.php owner=apache group=apache mode=644
+
+- template: src=vhost_conf.j2 dest=/etc/httpd/conf.d/mediawiki.conf owner=apache group=apache mode=644
+
+#- name: Enable firewall for HTTP 
+#  firewalld: port=80/tcp  permanent=true  state=enabled
+
+- name: Enable Apache Service and Restart 
+  systemd: name=httpd daemon_reload=yes state=restarted enabled=yes
+  become: true

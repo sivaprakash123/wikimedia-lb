@@ -1,0 +1,10 @@
+<VirtualHost *:80>
+  ServerName {{ ansible_host }}
+DocumentRoot /var/www/html/mediawiki
+DirectoryIndex index.html index.php
+<Directory /var/www/html/mediawiki>
+    Options Indexes FollowSymLinks
+    AllowOverride None
+    Require all granted
+</Directory>
+</VirtualHost>

@@ -1,0 +1,13 @@
+---
+
+- name: Install HAProxy
+  yum: pkg=haproxy state=present
+  become: true
+    
+- name: Copy HAProxy conf
+  become: true
+  template: src=haproxy_conf.j2 dest=/etc/haproxy/haproxy.cfg mode=0644
+
+- name: restart and enable HAProxy service
+  systemd: name=haproxy daemon_reload=yes state=restarted enabled=yes
+  become: true

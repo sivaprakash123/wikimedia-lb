@@ -1,0 +1,13 @@
+---
+- hosts: kwmysql
+  roles:
+    - mysql
+
+- hosts: kwnode 
+  roles:
+    - mediawiki
+
+- hosts: haproxy
+  roles:
+    - haproxy
+
